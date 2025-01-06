@@ -79,11 +79,11 @@ python3 send.py file.bmp
 
 * Hash is transmitted for verification.
 
-Receiving a File
+Receiving a File (Continuous Listening)
 ```bash
-python3 receive.py
+nohup python3 receive.py &
 ```
-* Reconstructs the file from received chunks.
+* Continuously listens for incoming files and reconstructs the file from received chunks.
 
 * Verifies hash to ensure integrity.
 
@@ -95,7 +95,7 @@ python3 send.py example.bmp
 ```
 Receiver (Pi 2):
 ```bash
-python3 receive.py
+nohup python3 receive.py &
 ```
 License
 
