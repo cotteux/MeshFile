@@ -64,7 +64,7 @@ ls /dev/ttyUSB*
 ```
 3 Confirm connection:
 ```bash
-meshtastic --info
+python3 -m meshtastic --info
 ```
 #### 4. Clone MeshFile
 ```bash
