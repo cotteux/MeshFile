@@ -1,52 +1,74 @@
-import meshtastic
-import time
-import sys
-import math
 import os
-import zlib
-import hashlib
+import sys
+import time
+import math
+import subprocess
 
-interface = meshtastic.serial_interface.SerialInterface()
+CHUNK_SIZE = 180  # Max length of each chunk
 
-def calculate_hash(data):
-    return hashlib.sha256(data).hexdigest()
+def send_text_via_meshtastic(message, dest=None):
+    """Send a text message via the Meshtastic command-line interface."""
+    try:
+        if dest:
+            cmd = ["meshtastic", "--sendtext", message, "--dest", dest]
+        else:
+            cmd = ["meshtastic", "--sendtext", message]
 
-def send_file(file_path):
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            print(f"Sent: {message}")
+        else:
+            print(f"Failed to send message: {result.stderr}")
+    except Exception as e:
+        print(f"Error sending message: {e}")
+
+def send_file(file_path, dest=None):
+    """Send a file over Meshtastic in chunks."""
     if not os.path.exists(file_path):
         print("File not found.")
         return
 
-    # Read file in binary mode and compress
-    with open(file_path, "rb") as f:
-        file_content = f.read()
+    try:
+        with open(file_path, "r") as file:
+            content = file.read()
 
-    compressed_content = zlib.compress(file_content)
-    file_hash = calculate_hash(file_content)  # Calculate hash of the original file
+        total_length = len(content)
+        total_chunks = math.ceil(total_length / CHUNK_SIZE)
 
-    chunk_size = 200
-    total_length = len(compressed_content)
-    total_chunks = math.ceil(total_length / chunk_size)
+        print(f"Sending file: {file_path} ({total_chunks} chunks)")
 
-    # Send the START packet with total chunk count and hash
-    interface.sendText(f"[START]{total_chunks:02d}#{file_hash}")
-    print(f"Sent: [START]{total_chunks:02d}#{file_hash}")
-    time.sleep(1)
+        # Step 1: Announce the file name
+        file_name = os.path.basename(file_path)
+        start_message = f"[START] {file_name}"
+        send_text_via_meshtastic(start_message, dest)
+        time.sleep(1)
 
-    # Send the file in chunks
-    for i in range(total_chunks):
-        chunk = compressed_content[i * chunk_size: (i + 1) * chunk_size]
-        chunk_number = f"{i + 1:02d}"
-        full_message = f"[CONT]{chunk_number}".encode() + chunk
-        interface.sendData(full_message)
-        print(f"Sent: [CONT]{chunk_number} ({len(chunk)} bytes)")
-        time.sleep(2)  # Prevent flooding
+        # Step 2: Send chunks
+        for i in range(total_chunks):
+            chunk = content[i * CHUNK_SIZE: (i + 1) * CHUNK_SIZE]
+            # Encapsulate chunk in delimiters
+            message = f"[CHUNK] {i + 1}/{total_chunks} <<{chunk}>>"
+            send_text_via_meshtastic(message, dest)
+            time.sleep(1)  # Prevent flooding
 
-    # Send the END packet
-    interface.sendText(f"[END]{total_chunks:02d}")
-    print(f"Sent: [END]{total_chunks:02d}")
+        # Step 3: End message
+        end_message = "[END] Transfer complete."
+        send_text_via_meshtastic(end_message, dest)
+        print("File transmission complete.")
+    except Exception as e:
+        print(f"Error reading or sending the file: {e}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python3 send.py <file.bmp>")
+    # Parse command-line arguments
+    if len(sys.argv) < 2:
+        print("Usage: python3 sender.py <file.txt> [--dest <destination>]")
     else:
-        send_file(sys.argv[1])
+        file_path = sys.argv[1]
+        dest = None
+
+        # Check for destination flag
+        if len(sys.argv) > 2 and sys.argv[2] == "--dest" and len(sys.argv) > 3:
+            dest = sys.argv[3]
+
+        send_file(file_path, dest)
+
