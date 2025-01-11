@@ -73,7 +73,7 @@ cd meshfile
 ```
 ## Sending a File
 ```bash
-python3 send.py file.bmp
+python3 sender.py <file.txt> '<destination>'
 ```
 * Compresses and sends the file in chunks.
 
@@ -81,7 +81,7 @@ python3 send.py file.bmp
 
 Receiving a File (Continuous Listening)
 ```bash
-nohup python3 receive.py &
+nohup python3 receiver.py &
 ```
 * Continuously listens for incoming files and reconstructs the file from received chunks.
 
@@ -91,11 +91,11 @@ nohup python3 receive.py &
 
 Sender (Pi 1):
 ```bash
-python3 send.py example.bmp
+python3 sender.py <file.txt> '<destination>'
 ```
 Receiver (Pi 2):
 ```bash
-nohup python3 receive.py &
+nohup python3 receiver.py &
 ```
 License
 
