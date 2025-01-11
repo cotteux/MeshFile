@@ -7,6 +7,7 @@ from pubsub import pub
 
 CONFIG_FILE = "meshtastic_config.json"
 LOG_FILE = "listener.log"
+OUTPUT_DIR = "received_files"  # Directory to store compiled files
 
 # Configure logging
 logging.basicConfig(
@@ -109,8 +110,46 @@ def process_chunk_message(text, sender, interface):
         # Send progress confirmation back to the sender
         interface.sendText(progress_message, destinationId=sender)
 
+        # Check if all chunks are received
+        if received_count == total_chunks:
+            compile_file(filename)
+
     except Exception as e:
         logger.error(f"Error processing chunk message: {e}")
+
+def compile_file(filename):
+    """Compile received chunks into a complete file."""
+    try:
+        if filename not in chunk_storage:
+            logger.error(f"No data found for file: {filename}")
+            return
+
+        total_chunks = chunk_storage[filename]["total_chunks"]
+        received_chunks = chunk_storage[filename]["received_chunks"]
+
+        # Check if all chunks are present
+        if len(received_chunks) != total_chunks:
+            logger.error(f"Missing chunks for file: {filename}. Cannot compile.")
+            return
+
+        # Compile chunks in order
+        compiled_data = "".join(received_chunks[i] for i in range(1, total_chunks + 1))
+
+        # Save to file
+        if not os.path.exists(OUTPUT_DIR):
+            os.makedirs(OUTPUT_DIR)
+
+        file_path = os.path.join(OUTPUT_DIR, filename)
+        with open(file_path, "w") as file:
+            file.write(compiled_data)
+
+        logger.info(f"File {filename} compiled and saved to {file_path}")
+
+        # Remove file from chunk storage
+        del chunk_storage[filename]
+
+    except Exception as e:
+        logger.error(f"Error compiling file {filename}: {e}")
 
 def on_connection(interface, topic=pub.AUTO_TOPIC):
     """Callback for connection establishment."""
@@ -141,5 +180,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
