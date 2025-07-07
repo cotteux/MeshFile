@@ -4,13 +4,14 @@ import time
 import math
 import json
 import logging
+import zlib, base64
 from meshtastic.serial_interface import SerialInterface
 from pubsub import pub
 
 CONFIG_FILE = "meshtastic_config.json"
 LOG_FILE = "sender.log"
-CHUNK_SIZE = 180  # Max length of each chunk
-CONFIRMATION_TIMEOUT = 10  # Time in seconds to wait for confirmation messages
+CHUNK_SIZE = 160  # Max length of each chunk
+CONFIRMATION_TIMEOUT = 15  # Time in seconds to wait for confirmation messages
 
 # Configure logging
 logging.basicConfig(
@@ -103,9 +104,10 @@ def send_file(file_path, dest, interface):
         return
 
     try:
-        with open(file_path, "r") as file:
-            content = file.read()
-
+        with open(file_path, "rb") as file:
+            content1 = file.read()
+            content =  base64.b64encode(zlib.compress(content1,9))
+            content = content.decode('utf-8')
         total_length = len(content)
         total_chunks = math.ceil(total_length / CHUNK_SIZE)
         file_name = os.path.basename(file_path)
@@ -115,7 +117,7 @@ def send_file(file_path, dest, interface):
         # Step 1: Announce the file name
         start_message = f"[START] {file_name}"
         send_text_via_meshtastic(start_message, dest, interface)
-        time.sleep(1)
+        time.sleep(3)
 
         # Step 2: Send chunks
         for i in range(total_chunks):
@@ -123,7 +125,7 @@ def send_file(file_path, dest, interface):
             chunk = content[i * CHUNK_SIZE: (i + 1) * CHUNK_SIZE]
             message = f"[CHUNK] {chunk_number}/{total_chunks} {file_name} {chunk}"
             send_text_via_meshtastic(message, dest, interface)
-            time.sleep(1)  # Prevent flooding
+            time.sleep(2)  # Prevent flooding
 
             # Wait for confirmation
             retries = 0
@@ -133,6 +135,7 @@ def send_file(file_path, dest, interface):
                     break
                 else:
                     retries += 1
+                    send_text_via_meshtastic(message, dest, interface)
                     logger.info(f"Waiting for confirmation of chunk {chunk_number}/{total_chunks} (Retry {retries})...")
                     time.sleep(CONFIRMATION_TIMEOUT)
 

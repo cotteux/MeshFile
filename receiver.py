@@ -2,6 +2,7 @@ import json
 import os
 import logging
 import meshtastic
+import zlib, base64
 from meshtastic.serial_interface import SerialInterface
 from pubsub import pub
 
@@ -68,14 +69,14 @@ def on_receive(packet, interface):
         portnum = decoded.get("portnum", None)
         text = decoded.get("text", None)
         sender = packet.get("fromId", "Unknown Sender")
-
+        #print (text)
         if portnum == "TEXT_MESSAGE_APP" and text:
             logger.info(f"Text message received from {sender}: {text}")
 
             # Process [CHUNK] messages
             if text.startswith("[CHUNK]"):
                 process_chunk_message(text, sender, interface)
-
+                #print ("YEAHHHHH")
     except Exception as e:
         logger.error(f"Error processing packet: {e}")
 
@@ -134,13 +135,15 @@ def compile_file(filename):
 
         # Compile chunks in order
         compiled_data = "".join(received_chunks[i] for i in range(1, total_chunks + 1))
-
+        compiled_data = zlib.decompress(base64.b64decode(compiled_data))
+        #compiled_data = compiled_data.decode('utf-8')
+        #print (compiled_data)
         # Save to file
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
 
         file_path = os.path.join(OUTPUT_DIR, filename)
-        with open(file_path, "w") as file:
+        with open(file_path, "wb") as file:
             file.write(compiled_data)
 
         logger.info(f"File {filename} compiled and saved to {file_path}")
