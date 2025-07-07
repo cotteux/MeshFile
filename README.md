@@ -1,16 +1,14 @@
 # MeshFile - Reliable File Transfer Over Meshtastic Networks
 
-## MeshFile is a lightweight tool for transmitting files over long-range, low-power LoRa networks using Meshtastic devices. It compresses files, splits them into chunks, and ensures integrity with SHA-256 hash verification. Missing chunks are automatically requested, making the system resilient to packet loss.
+## MeshFile is a lightweight tool for transmitting files over long-range, low-power LoRa networks using Meshtastic devices. It compresses files, splits them into chunks. Missing chunks are automatically requested, making the system resilient to packet loss.
 
 ### Features
 
 * Reliable File Transfer – Ensures complete and accurate file delivery.
 
-* Compression – Reduces file size before transmission.
+* Compression – Reduces file size before transmission with Zlib.
 
 * Chunked Transmission – Splits files into 200-byte packets.
-
-* Hash Verification – SHA-256 hash checks ensure file integrity.
 
 * Retransmission – Automatically requests missing chunks.
 
@@ -33,8 +31,6 @@
 * Meshtastic Python Library
 
 * zlib – For compression.
-
-* hashlib – For SHA-256 hashing.
 
 ### Setup
 
