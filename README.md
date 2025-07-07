@@ -66,7 +66,7 @@ python3 sender.py <file.txt> '<destination>'
 ```
 * Compresses and sends the file in chunks.
 
-* Hash is transmitted for verification.
+* Hash is transmitted for verification. (TODO)
 
 Receiving a File (Continuous Listening)
 ```bash
