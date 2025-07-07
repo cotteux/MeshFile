@@ -57,7 +57,7 @@ python3 -m meshtastic --info
 ```
 #### 3. Clone MeshFile
 ```bash
-git clone https://github.com/VeggieVampire/MeshFile
+git clone https://github.com/cotteux/MeshFile.git
 cd meshfile
 ```
 ## Sending a File
