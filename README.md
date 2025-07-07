@@ -14,17 +14,17 @@
 
 ### Hardware Requirements
 
-* 2 x Raspberry Pi (3B/4 or Zero 2 W) – One for sending, one for receiving.
+* 2 x computers – One for sending, one for receiving.
 
 * 2 x Meshtastic LoRa Devices (e.g., T-Beam, Heltec LoRa 32)
 
 * Antennas – Properly tuned to the frequency of your region (433 MHz, 868 MHz, or 915 MHz).
 
-* USB Cable – To connect the LoRa devices to the Raspberry Pi.
+* USB Cable – To connect the LoRa devices to the computer.
 
 ### Software Requirements
 
-* Raspberry Pi OS (Lite or Desktop)
+* Linux
 
 * Python 3
 
@@ -33,16 +33,9 @@
 * zlib – For compression.
 
 ### Setup
+ adding a wpa_supplicant.conf file in /boot.
 
-#### 1. Install Raspberry Pi OS
-
-* Download and flash Raspberry Pi OS (Lite or Desktop) using the Raspberry Pi Imager.
-
-* Enable SSH (optional) by adding an empty ssh file in the /boot directory.
-
-* Configure Wi-Fi (optional) by adding a wpa_supplicant.conf file in /boot.
-
-#### 2. Install Required Packages
+#### 1. Install Required Packages
 
 ```bash
 sudo apt update && sudo apt upgrade -y
@@ -50,7 +43,7 @@ sudo apt install python3-pip python3-serial git
 pip3 install meshtastic
 ```
 
-#### 3. Connect Meshtastic Devices
+#### 2. Connect Meshtastic Devices
 
 1 Connect the LoRa device to each Raspberry Pi via USB.
 
@@ -62,7 +55,7 @@ ls /dev/ttyUSB*
 ```bash
 python3 -m meshtastic --info
 ```
-#### 4. Clone MeshFile
+#### 3. Clone MeshFile
 ```bash
 git clone https://github.com/VeggieVampire/MeshFile
 cd meshfile
@@ -85,11 +78,11 @@ nohup python3 receiver.py &
 
 ## Example Setup
 
-Sender (Pi 1):
+Sender (PC 1):
 ```bash
 python3 sender.py <file.txt> '<destination>'
 ```
-Receiver (Pi 2):
+Receiver (PC 2):
 ```bash
 nohup python3 receiver.py &
 ```
