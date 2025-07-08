@@ -33,7 +33,7 @@
 * zlib – For compression.
 
 ### Setup
- adding a wpa_supplicant.conf file in /boot.
+
 
 #### 1. Install Required Packages
 
