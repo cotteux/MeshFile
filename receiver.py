@@ -163,9 +163,13 @@ def compile_file(filename):
 
         # Compile chunks in order
         compiled_data = "".join(received_chunks[i] for i in range(1, total_chunks + 1))
-        compiled_data = zlib.decompress(base64.b64decode(compiled_data))
+        print (compiled_data)
+        try : 
+            compiled_data = zlib.decompress(base64.b64decode(compiled_data))
+        except:
+            compiled_data = base64.b64decode(compiled_data)
+
         #compiled_data = compiled_data.decode('utf-8')
-        #print (compiled_data)
         # Save to file
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
