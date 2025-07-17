@@ -11,6 +11,8 @@
 * Chunked Transmission – Splits files into 160-byte packets.
 
 * Retransmission – Automatically requests missing chunks.
+  
+* Manual retransmission - Resend a File to complete it
 
 ### Hardware Requirements
 
@@ -32,6 +34,7 @@
 
 * zlib – For compression.
 
+* HashLib
 ### Setup
 
 
@@ -41,6 +44,8 @@
 sudo apt update && sudo apt upgrade -y
 sudo apt install python3-pip python3-serial git
 pip3 install meshtastic
+pip3 install zlib
+pip3 install hashlib
 ```
 
 #### 2. Connect Meshtastic Devices
@@ -62,11 +67,11 @@ cd meshfile
 ```
 ## Sending a File
 ```bash
-python3 sender.py <file.txt> '<destination>'
+python3 sender.py <file.txt> '<destination>' <chunk to start(optionnal)>
 ```
 * Compresses and sends the file in chunks.
 
-* Hash is transmitted for verification. (TODO)
+* Hash is transmitted for verification at the end.
 
 Receiving a File (Continuous Listening)
 ```bash
