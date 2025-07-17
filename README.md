@@ -8,8 +8,6 @@
 
 * Compression – Reduces file size before transmission with Zlib.
 
-* Chunked Transmission – Splits files into 160-byte packets.
-
 * Retransmission – Automatically requests missing chunks.
   
 * Manual retransmission - Resend a File to complete it
