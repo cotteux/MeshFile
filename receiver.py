@@ -2,14 +2,14 @@ import json
 import os
 import logging
 import meshtastic
-import zlib, base64
+import zlib, base64, hashlib
 from meshtastic.serial_interface import SerialInterface
 from pubsub import pub
 
 CONFIG_FILE = "meshtastic_config.json"
 LOG_FILE = "listener.log"
 OUTPUT_DIR = "received_files"  # Directory to store compiled files
-
+HASH = ""
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -24,6 +24,26 @@ logger = logging.getLogger(__name__)
 
 # Dictionary to store collected chunks
 chunk_storage = {}
+
+
+
+
+
+# Define a function to calculate the SHA-256 hash of a file.
+def calculate_hash(file_path):
+   # Create a SHA-256 hash object.
+   sha256_hash = hashlib.sha256()
+   # Open the file in binary mode for reading (rb).
+   with open(file_path, "rb") as file:
+       # Read the file in 64KB chunks to efficiently handle large files.
+       while True:
+           data = file.read(65536)  # Read the file in 64KB chunks.
+           if not data:
+               break
+           # Update the hash object with the data read from the file.
+           sha256_hash.update(data)
+   # Return the hexadecimal representation of the calculated hash.
+   return sha256_hash.hexdigest()
 
 def save_device_path(dev_path):
     """Save the detected device path to a configuration file."""
@@ -69,14 +89,22 @@ def on_receive(packet, interface):
         portnum = decoded.get("portnum", None)
         text = decoded.get("text", None)
         sender = packet.get("fromId", "Unknown Sender")
-        #print (text)
+        print (portnum)
         if portnum == "TEXT_MESSAGE_APP" and text:
             logger.info(f"Text message received from {sender}: {text}")
-
+            #print (sender+" : "+text)
             # Process [CHUNK] messages
             if text.startswith("[CHUNK]"):
                 process_chunk_message(text, sender, interface)
                 #print ("YEAHHHHH")
+            # Process [CHUNK] messages
+            if text.startswith("[END]"):
+                print ('HASH File: '+HASH)
+                print (text)
+                if HASH in text :
+                    print('----- The file HASH is IDENTICAL')
+                else :
+                    print("Defect File")
     except Exception as e:
         logger.error(f"Error processing packet: {e}")
 
@@ -147,7 +175,8 @@ def compile_file(filename):
             file.write(compiled_data)
 
         logger.info(f"File {filename} compiled and saved to {file_path}")
-
+        print ('HASH: '+calculate_hash(file_path))
+        HASH = calculate_hash(file_path)
         # Remove file from chunk storage
         del chunk_storage[filename]
 
