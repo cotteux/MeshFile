@@ -12,7 +12,7 @@ from pubsub import pub
 CONFIG_FILE = "meshtastic_config.json"
 LOG_FILE = "sender.log"
 CHUNK_SIZE = 180  # Max length of each chunk
-CONFIRMATION_TIMEOUT = 30  # Time in seconds to wait for confirmation messages
+CONFIRMATION_TIMEOUT = 3  # Time in seconds to wait for confirmation messages
 START_TIME = time.localtime()
 START_TIME = time.strftime("%H:%M:%S", START_TIME)
 print(START_TIME)
@@ -127,11 +127,12 @@ def send_file(file_path, dest, interface, chunkstart):
             content1 = file.read()
             logger.info(f"Uncompressed Size: {len(content1)} bytes")
             content =  base64.b64encode(zlib.compress(content1,9))
+            content = content.decode('utf-8')
             logger.info(f"Compressed Size: {len(content)} bytes")
             if len(content1) < len(content) :
                 logger.info(f"Sending UnCompressed version")
                 content=base64.b64encode(content1)
-        content = content.decode('utf-8')
+                content = content.decode('utf-8')
         total_length = len(content)
         total_chunks = math.ceil(total_length / CHUNK_SIZE)
         file_name = os.path.basename(file_path)
@@ -159,14 +160,16 @@ def send_file(file_path, dest, interface, chunkstart):
 
             # Wait for confirmation
             retries = 0
-            while retries < 5:
+            while retries < 30:
                 if f"{chunk_number}/{total_chunks} confirmed" in confirmation_state.get(file_name, set()):
                     logger.info(f"Chunk {chunk_number}/{total_chunks} confirmed.")
                     retries = 0
                     break
                 else:
                     retries += 1
-                    send_text_via_meshtastic(message, dest, interface)
+                    if retries == 9 or retries==18 :
+                        send_text_via_meshtastic(message, dest, interface)
+                        logger.info(f"Resend chunk {chunk_number}/{total_chunks})...")
                     logger.info(f"Waiting for confirmation of chunk {chunk_number}/{total_chunks} (Retry {retries})...")
                     time.sleep(CONFIRMATION_TIMEOUT)
 
