@@ -65,7 +65,8 @@ cd meshfile
 ```
 ## Sending a File
 ```bash
-python3 sender.py <file.txt> '<destination>' <chunk to start(optionnal)>```
+python3 sender.py <file.txt> '<destination>' <chunk to start(optionnal)>
+```
 Like This for simply send:
 ```bash
 python3 sender.py bob.jpg '!75ce81b8'
