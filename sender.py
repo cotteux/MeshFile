@@ -167,13 +167,13 @@ def send_file(file_path, dest, interface, chunkstart):
                     break
                 else:
                     retries += 1
-                    if retries == 9 or retries==18 :
+                    if retries == 10 or retries==20 :
                         send_text_via_meshtastic(message, dest, interface)
                         logger.info(f"Resend chunk {chunk_number}/{total_chunks})...")
                     logger.info(f"Waiting for confirmation of chunk {chunk_number}/{total_chunks} (Retry {retries})...")
                     time.sleep(CONFIRMATION_TIMEOUT)
 
-            if retries >= 5:
+            if retries >= 30:
                 logger.error(f"Failed to confirm chunk {chunk_number}/{total_chunks}. Aborting.")
                 return
 
