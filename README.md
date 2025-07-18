@@ -88,16 +88,7 @@ nohup python3 receiver.py &
 
 * Verifies hash to ensure integrity.
 
-## Example Setup
 
-Sender (PC 1):
-```bash
-python3 sender.py <file.txt> '<destination>'
-```
-Receiver (PC 2):
-```bash
-nohup python3 receiver.py &
-```
 License
 
 Creative Commons Attribution-NonCommercial 4.0 International
