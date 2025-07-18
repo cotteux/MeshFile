@@ -86,7 +86,7 @@ nohup python3 receiver.py &
 ```
 * Continuously listens for incoming files and reconstructs the file from received chunks.
 
-* Verifies hash to ensure integrity.(TODO)
+* Verifies hash to ensure integrity.
 
 ## Example Setup
 
