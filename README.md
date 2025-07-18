@@ -64,6 +64,7 @@ git clone https://github.com/cotteux/MeshFile.git
 cd meshfile
 ```
 ## Sending a File
+Sender (PC 1):
 ```bash
 python3 sender.py <file.txt> '<destination>' <chunk to start(optionnal)>
 ```
@@ -78,7 +79,7 @@ python3 sender.py bob.jpg '!75ce81b8' 3
 * Compresses and sends the file in chunks.
 
 * Hash is transmitted for verification at the end.
-
+Receiver (PC 2):
 Receiving a File (Continuous Listening)
 ```bash
 nohup python3 receiver.py &
