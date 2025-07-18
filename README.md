@@ -10,7 +10,7 @@
 
 * Retransmission – Automatically requests missing chunks.
   
-* Manual retransmission - Resend a File to complete it
+* Manual retransmission - Resend a part of the file to complete it
 
 ### Hardware Requirements
 
